@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DA EVENTS 3D Studio — Christian Wedding Stage</title>
+<style>
+:root{--gold:#c8a45d;--ink:#171717;--panel:#242424;--muted:#b8b8b8}
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#fff;font:14px Arial,sans-serif}
+header{height:62px;padding:10px 18px;background:#171717;border-bottom:1px solid #393939;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:2px;color:#e4c77e}.brand small{display:block;color:#ddd;font-weight:400;letter-spacing:1px;font-size:10px;margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}button{border:1px solid #6e5a32;background:#302817;color:#f6e6bd;padding:9px 12px;border-radius:7px;cursor:pointer}button:hover{background:#4a3a20}
+main{display:grid;grid-template-columns:235px 1fr 245px;height:calc(100vh - 62px);min-height:560px}
+aside{background:#1b1b1b;padding:14px;overflow:auto;border-right:1px solid #333}aside.right{border-right:0;border-left:1px solid #333}
+h3{font-size:12px;color:#e5c77e;letter-spacing:1.3px;margin:8px 0 12px}
+.item{padding:10px;background:#292929;border:1px solid #3b3b3b;border-radius:8px;margin:7px 0;cursor:pointer}
+.item:hover{border-color:var(--gold)}.item b{display:block;margin-bottom:4px}.item span{font-size:11px;color:#aaa}
+#viewport{position:relative;min-width:0;background:radial-gradient(ellipse at center,#777 0,#333 50%,#171717 100%);overflow:hidden}
+#scene{width:100%;height:100%;display:block}
+.hint{position:absolute;left:14px;bottom:12px;background:#111c;padding:9px 12px;border-radius:8px;color:#ddd;font-size:11px;pointer-events:none}
+.panel{background:#292929;border:1px solid #444;border-radius:8px;padding:11px;margin:9px 0}
+label{display:block;color:#ccc;font-size:12px;margin:10px 0 5px}
+input,select{width:100%;background:#151515;color:white;border:1px solid #555;border-radius:6px;padding:8px}
+.row{display:flex;gap:7px}.row button{flex:1}
+#status{font-size:11px;color:#bdbdbd;line-height:1.5}.gold{color:#e5c77e}
+@media(max-width:850px){main{grid-template-columns:170px 1fr;height:auto;min-height:calc(100vh - 62px)}aside.right{grid-column:1 / -1;border-left:0;border-top:1px solid #333;display:grid;grid-template-columns:1fr 1fr;gap:10px}#viewport{height:65vh;min-height:430px}aside{padding:10px}.actions button{padding:7px;font-size:11px}}
+@media(max-width:540px){main{grid-template-columns:125px 1fr}header{padding:8px}.brand{font-size:12px}.item{padding:7px;font-size:11px}.item span{font-size:10px}.actions{gap:4px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">DA EVENTS <small>3D STUDIO · WHITE & GOLD PREMIUM</small></div>
+ <div class="actions"><button id="reset">Reset view</button><button id="preview">Customer preview</button><button id="save">Save design</button></div>
+</header>
+<main>
+<aside>
+ <h3>ADD DECORATION</h3>
+ <div class="item" data-kind="sofa"><b>🤍 Bride & Groom Sofa</b><span>Add a white stage sofa</span></div>
+ <div class="item" data-kind="flower"><b>🌸 Flower Arrangement</b><span>White floral cluster</span></div>
+ <div class="item" data-kind="pillar"><b>🏛 Gold Pillar</b><span>Decorative pillar</span></div>
+ <div class="item" data-kind="arch"><b>✨ Floral Arch</b><span>Gold arch with flowers</span></div>
+ <div class="item" data-kind="cross"><b>✝ Christian Cross</b><span>Gold cross backdrop</span></div>
+ <div class="item" data-kind="light"><b>💡 Floor Light</b><span>Warm stage light</span></div>
+ <h3>HOW TO USE</h3>
+ <div class="panel" id="status">Tap an item to add it. Select an object in the 3D stage, then edit its position, size and rotation on the right. Drag to orbit; scroll to zoom.</div>
+</aside>
+<section id="viewport"><canvas id="scene"></canvas><div class="hint">Drag to rotate · Scroll to zoom · Tap an object to select</div></section>
+<aside class="right">
+ <div>
+  <h3>SELECTED OBJECT</h3>
+  <div class="panel"><div id="selectedName" class="gold">No object selected</div>
+   <label>Position X</label><input id="posX" type="range" min="-5" max="5" step=".1" value="0">
+   <label>Position Z</label><input id="posZ" type="range" min="-3" max="3" step=".1" value="0">
+   <label>Size</label><input id="scale" type="range" min=".5" max="2" step=".05" value="1">
+   <label>Rotation</label><input id="rotation" type="range" min="-180" max="180" step="5" value="0">
+   <div class="row" style="margin-top:10px"><button id="delete">Delete</button><button id="duplicate">Duplicate</button></div>
+  </div>
+ </div>
+ <div>
+  <h3>STAGE SETTINGS</h3>
+  <div class="panel">
+   <label>Stage width (metres)</label><input id="stageWidth" type="number" min="4" max="16" value="10">
+   <label>Stage depth (metres)</label><input id="stageDepth" type="number" min="2" max="8" value="4">
+   <label>Theme</label><select id="theme"><option>White & Gold Premium</option><option>White & Green Floral</option><option>Ivory & Champagne</option></select>
+   <button id="applyStage" style="width:100%;margin-top:10px">Apply stage size</button>
+  </div>
+ </div>
+</aside>
+</main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+const canvas=document.querySelector('#scene'), viewport=document.querySelector('#viewport');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x777777);
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(10,8,13);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,2,0);controls.enableDamping=true;
+scene.add(new THREE.HemisphereLight(0xffffff,0x55505a,2));
+const key=new THREE.DirectionalLight(0xffedcc,3);key.position.set(-5,10,7);key.castShadow=true;scene.add(key);
+const fill=new THREE.PointLight(0xffffff,90,30);fill.position.set(4,6,-4);scene.add(fill);
+const gold=new THREE.MeshStandardMaterial({color:0xc8a45d,metalness:.72,roughness:.28});
+const white=new THREE.MeshStandardMaterial({color:0xf4f0e8,roughness:.55});
+const flowerMat=new THREE.MeshStandardMaterial({color:0xfffaf4,roughness:.8});
+const green=new THREE.MeshStandardMaterial({color:0x667b57,roughness:.8});
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0x777777,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.13;floor.receiveShadow=true;scene.add(floor);
+let stageW=10,stageD=4,stage;
+function makeStage(){if(stage)scene.remove(stage);stage=new THREE.Group();const base=new THREE.Mesh(new THREE.BoxGeometry(stageW,.35,stageD),white);base.position.y=.18;base.receiveShadow=true;base.castShadow=true;stage.add(base);
+const trim=new THREE.Mesh(new THREE.BoxGeometry(stageW+.05,.09,stageD+.05),gold);trim.position.y=.39;stage.add(trim);
+const back=new THREE.Mesh(new THREE.BoxGeometry(stageW,.12,.16),gold);back.position.set(0,.52,-stageD/2+.12);stage.add(back);scene.add(stage)}
+makeStage();
+const objects=[];let selected=null;const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+function mat(kind){return kind==='gold'?gold:kind==='green'?green:kind==='flower'?flowerMat:white}
+function addMesh(parent,geo,material,pos){const m=new THREE.Mesh(geo,material);m.position.set(...pos);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function build(kind){
+ const g=new THREE.Group();let name=kind;
+ if(kind==='sofa'){name='Bride & Groom Sofa';addMesh(g,new THREE.BoxGeometry(2.5,.35,.85),white,[0,.85,0]);addMesh(g,new THREE.BoxGeometry(2.5,1,.22),white,[0,1.35,-.34]);for(const x of [-1.05,1.05])addMesh(g,new THREE.BoxGeometry(.35,.8,.9),white,[x,1.15,0]);for(const x of [-.95,.95])addMesh(g,new THREE.CylinderGeometry(.06,.06,.55,12),gold,[x,.45,.25]);}
+ if(kind==='flower'){name='White Flower Arrangement';for(let i=0;i<13;i++){let a=i*2.4,r=.18+(i%4)*.09;addMesh(g,new THREE.SphereGeometry(.22,12,10),flowerMat,[Math.cos(a)*r,.65+(i%5)*.13,Math.sin(a)*r]);}for(let i=0;i<5;i++)addMesh(g,new THREE.SphereGeometry(.12,10,8),green,[(i-2)*.18,.35,0]);}
+ if(kind==='pillar'){name='Gold Decorative Pillar';addMesh(g,new THREE.CylinderGeometry(.22,.28,2.5,20),gold,[0,1.25,0]);addMesh(g,new THREE.CylinderGeometry(.34,.34,.15,20),gold,[0,.12,0]);addMesh(g,new THREE.CylinderGeometry(.34,.34,.15,20),gold,[0,2.38,0]);}
+ if(kind==='arch'){name='Gold Floral Arch';const curve=new THREE.TorusGeometry(1.65,.07,12,48,Math.PI);const arc=addMesh(g,curve,gold,[0,2.05,0]);arc.rotation.z=Math.PI;for(let i=0;i<16;i++){let a=Math.PI+i*Math.PI/15;addMesh(g,new THREE.SphereGeometry(.16,12,10),flowerMat,[1.65*Math.cos(a),2.05+1.65*Math.sin(a),0]);}}
+ if(kind==='cross'){name='Christian Cross';addMesh(g,new THREE.BoxGeometry(.28,2.6,.18),gold,[0,1.8,0]);addMesh(g,new THREE.BoxGeometry(1.55,.28,.2),gold,[0,2.2,0]);}
+ if(kind==='light'){name='Warm Floor Light';const c=addMesh(g,new THREE.CylinderGeometry(.28,.36,.25,20),gold,[0,.13,0]);addMesh(g,new THREE.SphereGeometry(.22,16,12),new THREE.MeshStandardMaterial({color:0xffe4a0,emissive:0xffb52e,emissiveIntensity:1.2}),[0,.38,0]);}
+ g.userData={kind,name};g.position.set((Math.random()-.5)*3,.42,(Math.random()-.5)*1.6);scene.add(g);objects.push(g);select(g);return g;
+}
+function select(g){selected=g;document.querySelector('#selectedName').textContent=g?g.userData.name:'No object selected';if(g){posX.value=g.position.x;posZ.value=g.position.z;scale.value=g.scale.x;rotation.value=THREE.MathUtils.radToDeg(g.rotation.y)}}
+document.querySelectorAll('.item').forEach(el=>el.addEventListener('click',()=>build(el.dataset.kind)));
+function resize(){const w=viewport.clientWidth,h=viewport.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(viewport);resize();
+canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(objects,true);if(hits.length){let o=hits[0].object;while(o.parent&&!o.userData.kind)o=o.parent;if(o.userData.kind)select(o)}});
+posX.oninput=()=>{if(selected)selected.position.x=+posX.value};posZ.oninput=()=>{if(selected)selected.position.z=+posZ.value};scale.oninput=()=>{if(selected)selected.scale.setScalar(+scale.value)};rotation.oninput=()=>{if(selected)selected.rotation.y=THREE.MathUtils.degToRad(+rotation.value)};
+delete.onclick=()=>{if(selected){scene.remove(selected);objects.splice(objects.indexOf(selected),1);select(null)}};
+duplicate.onclick=()=>{if(selected){const c=selected.clone(true);c.position.x+=.6;c.userData={...selected.userData};scene.add(c);objects.push(c);select(c)}};
+applyStage.onclick=()=>{stageW=Math.max(4,Math.min(16,+stageWidth.value||10));stageD=Math.max(2,Math.min(8,+stageDepth.value||4));makeStage()};
+reset.onclick=()=>{camera.position.set(10,8,13);controls.target.set(0,2,0);controls.update()};
+preview.onclick=()=>{document.querySelectorAll('aside').forEach(a=>a.style.display=a.style.display==='none'?'':'none');document.querySelector('.hint').textContent='CUSTOMER PREVIEW · DA EVENTS · White & Gold Premium'};
+save.onclick=()=>{const data={project:'DA EVENTS 3D Studio',stage:{width:stageW,depth:stageD},objects:objects.map(o=>({type:o.userData.kind,name:o.userData.name,position:o.position.toArray(),rotation:o.rotation.toArray(),scale:o.scale.toArray()}))};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='DA-Events-Christian-Wedding-Stage.json';a.click();URL.revokeObjectURL(a.href)};
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
+</script>
+</body></html>

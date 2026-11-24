@@ -1,13 +1,4 @@
-android {
-    namespace 'com.example.daevent' // keep your existing namespace
-    compileSdk 35 // or 36 / your installed SDK API level
-
-    defaultConfig {
-        applicationId "com.example.daevent" // keep your existing applicationId
-        minSdk 24
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
-    }
-    ...
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+    // add other root plugins here if needed, e.g., Kotlin
 }

@@ -1,4 +1,13 @@
-plugins {
-    id 'com.android.application' version '8.7.3' apply false
-    id 'org.jetbrains.kotlin.android' version '2.0.21' apply false
+android {
+    namespace 'com.example.daevent' // keep your existing namespace
+    compileSdk 35 // or 36 / your installed SDK API level
+
+    defaultConfig {
+        applicationId "com.example.daevent" // keep your existing applicationId
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+    ...
 }

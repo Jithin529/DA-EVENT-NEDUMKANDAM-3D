@@ -1,10 +1,11 @@
+
 plugins {
     id 'com.android.application'
 }
 
 android {
-    namespace 'com.example.daevent' // match your app namespace
-    compileSdk 35 // set to the Android SDK platform installed in CI
+    namespace 'com.example.daevent'
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.daevent"
@@ -25,8 +26,4 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    // your app dependencies
 }
